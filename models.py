@@ -12,7 +12,7 @@ def conv_layer(name, inputs, in_channels, out_channels, ksize, stride, trainable
         kernel = tf.get_variable('weight', [ksize[0], ksize[1], in_channels, out_channels], dtype=tf.float32,
                                  initializer=tf.truncated_normal_initializer(dtype=tf.float32, stddev=0.1),
                                  trainable=trainable)
-        biases = tf.get_variable('biases', dtype=tf.float32, trainable=trainable,
+        biases = tf.get_variable('biases', dtype=tf.float32, shape=[out_channels], trainable=trainable,
                                  initializer=tf.constant_initializer(0, dtype=tf.float32))
         conv = tf.nn.conv2d(inputs, kernel, strides=[1, stride[0], stride[1], 1], padding=padding)
         result = tf.nn.bias_add(conv, biases)
@@ -64,7 +64,7 @@ def build_model(trainable=True):
     conv5, w5, b5 = conv_layer('conv5', conv4, 64, 64, [3, 3], [1, 1], padding='VALID', trainable=trainable,
                                with_batch_normal=True)
 
-    drop = tf.nn.dropout(conv5, keep_prob=keep_prob)
+    drop = tf.nn.dropout(conv5, rate=1 - keep_prob)
 
     fc6, w6, b6 = conv_layer('fc1', drop, 64, 1164, [1, 18], [1, 1], padding='VALID', trainable=trainable,
                              with_batch_normal=True)
@@ -81,3 +81,13 @@ def build_model(trainable=True):
         result = tf.reshape(fc10, [-1])
 
     return inputs, keep_prob, result
+
+
+def build_loss(labels, result, regularizer_weight, regularized_vars):
+    with tf.variable_scope("mse_loss"):
+        mse = tf.reduce_mean(tf.square(labels - result))
+    with tf.variable_scope("l2_loss"):
+        l2 = tf.add_n([tf.nn.l2_loss(var) for var in regularized_vars])
+    with tf.variable_scope("total_loss"):
+        loss = mse + l2 * regularizer_weight
+    return loss
