@@ -11,9 +11,9 @@ loss = models.build_loss(labels=labels, result=result, regularizer_weight=config
                          regularized_vars=tf.trainable_variables())
 
 training_step = tf.Variable(0, trainable=False, name="training_step")
-train = tf.train.AdamOptimizer(1e-6).minimize(loss, global_step=training_step)
+train = tf.train.AdamOptimizer(1e-5).minimize(loss, global_step=training_step)
 
-image_paths, labels = load_training_data()
+image_paths, image_labels = load_training_data()
 
 tf.summary.scalar("loss", loss)
 summary_op = tf.summary.merge_all()
@@ -30,6 +30,7 @@ signal.signal(signal.SIGINT, exit_handler)
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
 
+    step = 0
     saver = tf.train.Saver()
     checkpoint = tf.train.get_checkpoint_state(config.MODEL_PATH)
     if checkpoint and checkpoint.model_checkpoint_path:
@@ -38,16 +39,19 @@ with tf.Session() as sess:
     log_writer = tf.summary.FileWriter(config.LOG_PATH, sess.graph)
 
     for _ in range(config.MAX_STEPS):
-        image_batch, label_batch = next_batch(image_paths, labels)
+        image_batch, label_batch = next_batch(image_paths, image_labels)
 
         _, step, loss_batch, summary = sess.run([train, training_step, loss, summary_op],
-                                                feed_dict={inputs: image_batch, labels: label_batch})
+                                                feed_dict={inputs: image_batch, labels: label_batch,
+                                                           keep_prob: config.KEEP_PROB})
 
         if step % config.LOG_INTERVAL == 0:
             print("Step: {}, Loss: {}".format(step, loss_batch))
             log_writer.add_summary(summary, global_step=step)
         if exit_signal or step % config.SAVE_INTERVAL == 0:
-            saver.save(sess, config.MODEL_PATH, global_step=step)
+            saver.save(sess, os.path.join(config.MODEL_PATH, config.MODEL_NAME), global_step=step)
             print("Model saved")
             if exit_signal:
                 break
+
+    saver.save(sess, os.path.join(config.MODEL_PATH, config.MODEL_NAME), global_step=step)
