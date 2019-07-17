@@ -50,7 +50,8 @@ def next_batch(image_paths, labels):
     image_batch = []
     label_batch = []
     for _ in range(config.BATCH_SIZE):
-        image = cv2.imread(os.path.join(config.DATASET_PATH, image_paths[next_batch.offset]), cv2.IMREAD_COLOR)
+        file_path = os.path.join(config.DATASET_PATH, image_paths[next_batch.offset])
+        image = cv2.imread(file_path, cv2.IMREAD_COLOR)
         image_batch.append(pre_process_image(image, config.INPUT_IMAGE_CROP))
         label_batch.append(labels[next_batch.offset])
         next_batch.offset += 1

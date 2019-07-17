@@ -1,5 +1,6 @@
-MODEL_PATH = "./trained/models/"
-LOG_PATH = "./trained/logs/"
+BASE_PATH = "."
+MODEL_PATH = BASE_PATH + "/trained/models/"
+LOG_PATH = BASE_PATH + "/trained/logs/"
 
 # Dataset config
 DATASET_PATH = "./data/"
