@@ -7,6 +7,7 @@ LOG_PATH = BASE_PATH + "/trained/logs/"
 DATASET_PATH = "./data/"
 DATASET_META_FILE = "driving_data_meta.csv"
 INPUT_IMAGE_CROP = [60, -25]  # the input image in order [start_x, end_x], to cut the sky in the image
+SPLIT_SIZE = 0.2
 
 # Training config
 MAX_STEPS = 30000

@@ -111,29 +111,55 @@ def load_training_data():
     return image_paths, labels
 
 
-@static_vars(offset=0, orders=[])
-def next_batch(image_paths, labels):
-    image_count = len(image_paths)
-    if image_count != len(labels):
-        raise ValueError("Unmatched count of images and labels")
-    if image_count < config.BATCH_SIZE:
-        raise ValueError("Count of images is less than batch size")
-    if image_count != len(next_batch.orders):
-        next_batch.orders = list(range(image_count))
-    if next_batch.offset + config.BATCH_SIZE > image_count:
-        next_batch.offset = 0
-        random.shuffle(next_batch.orders)
+@static_vars(offset_train=0, order_train=[])
+def next_batch(images, labels):
+    image_train_count = len(images)
+    if image_train_count != len(labels):
+        raise ValueError("Unmatched count of image_train and label_train")
+    if image_train_count < config.BATCH_SIZE:
+        raise ValueError("Count of image_train is less than batch size")
+    if image_train_count != len(next_batch.order_train):
+        next_batch.order_train = list(range(image_train_count))
+    if next_batch.offset_train + config.BATCH_SIZE > image_train_count:
+        next_batch.offset_train = 0
+        random.shuffle(next_batch.order_train)
 
-    image_batch = []
-    label_batch = []
+    image_train_batch = []
+    label_train_batch = []
     for _ in range(config.BATCH_SIZE):
-        file_path = os.path.join(config.DATASET_PATH, image_paths[next_batch.offset])
+        file_path = os.path.join(config.DATASET_PATH, images[next_batch.offset_train])
         image = cv2.imread(file_path, cv2.IMREAD_COLOR)
-        steering = labels[next_batch.offset]
+        steering = labels[next_batch.offset_train]
         if np.random.rand() < 0.5:
             image, steering = augment_image(image, steering)
-        image_batch.append(process_image(image, config.INPUT_IMAGE_CROP))
-        label_batch.append(steering)
-        next_batch.offset += 1
+        image_train_batch.append(process_image(image, config.INPUT_IMAGE_CROP))
+        label_train_batch.append(steering)
+        next_batch.offset_train += 1
 
-    return image_batch, label_batch
+    return image_train_batch, label_train_batch
+
+
+@static_vars(offset_train=0, order_train=[])
+def next_test_batch(images, labels, batch_size):
+    image_train_count = len(images)
+    if image_train_count != len(labels):
+        raise ValueError("Unmatched count of image_train and label_train")
+    if image_train_count < batch_size:
+        raise ValueError("Count of image_train is less than batch size")
+    if image_train_count != len(next_test_batch.order_train):
+        next_test_batch.order_train = list(range(image_train_count))
+    if next_test_batch.offset_train + batch_size > image_train_count:
+        next_test_batch.offset_train = 0
+        random.shuffle(next_test_batch.order_train)
+
+    image_train_batch = []
+    label_train_batch = []
+    for _ in range(batch_size):
+        file_path = os.path.join(config.DATASET_PATH, images[next_test_batch.offset_train])
+        image = cv2.imread(file_path, cv2.IMREAD_COLOR)
+        steering = labels[next_test_batch.offset_train]
+        image_train_batch.append(process_image(image, config.INPUT_IMAGE_CROP))
+        label_train_batch.append(steering)
+        next_test_batch.offset_train += 1
+
+    return image_train_batch, label_train_batch
