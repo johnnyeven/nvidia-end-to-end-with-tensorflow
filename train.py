@@ -15,8 +15,6 @@ training_step = tf.Variable(0, trainable=False, name="training_step")
 train = tf.train.AdamOptimizer(1e-5).minimize(loss, global_step=training_step)
 
 image_paths, image_labels = load_training_data()
-images_train, images_test, labels_train, labels_test = train_test_split(image_paths, image_labels,
-                                                                        test_size=config.SPLIT_SIZE)
 
 tf.summary.scalar("loss", loss)
 summary_op = tf.summary.merge_all()
@@ -42,18 +40,16 @@ with tf.Session() as sess:
     log_writer = tf.summary.FileWriter(config.LOG_PATH, sess.graph)
 
     for _ in range(config.MAX_STEPS):
-        image_train, label_train = next_batch(images_train, labels_train)
+        image_train, label_train = next_batch(image_paths, image_labels)
 
-        _, step, loss_batch, summary = sess.run([train, training_step, loss, summary_op],
-                                                feed_dict={inputs: image_train, labels: label_train,
-                                                           keep_prob: config.KEEP_PROB})
+        _, step, result_batch, loss_batch, summary = sess.run([train, training_step, result, loss, summary_op],
+                                                              feed_dict={inputs: image_train, labels: label_train,
+                                                                         keep_prob: config.KEEP_PROB})
 
         if step % config.LOG_INTERVAL == 0:
-            image_test, label_test = next_test_batch(images_test, labels_test, 1)
-            # visualization(image_test[0])
-            steering_predict = sess.run(result, feed_dict={inputs: image_test, keep_prob: 1.0})[0]
             print(
-                "Step: {}, Loss: {}, Prediction: {}, Label: {}".format(step, loss_batch, steering_predict, label_test))
+                "Step: {}, Loss: {}, Prediction: {}, Label: {}".format(step, loss_batch, result_batch[0],
+                                                                       label_train[0]))
             log_writer.add_summary(summary, global_step=step)
         if exit_signal or step % config.SAVE_INTERVAL == 0:
             saver.save(sess, os.path.join(config.MODEL_PATH, config.MODEL_NAME), global_step=step)

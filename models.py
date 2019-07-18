@@ -75,7 +75,7 @@ def build_model(trainable=True):
     fc9, w9, b9 = conv_layer('fc4', fc8, 50, 10, [1, 1], [1, 1], padding='VALID', trainable=trainable,
                              with_batch_normal=True)
     fc10, w10, b10 = conv_layer('fc5', fc9, 10, 1, [1, 1], [1, 1], padding='VALID', trainable=trainable,
-                                with_batch_normal=True)
+                                with_batch_normal=False, with_elu=False)
 
     with tf.variable_scope('predict'):
         result = tf.reshape(fc10, [-1])
