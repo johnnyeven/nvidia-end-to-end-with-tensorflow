@@ -50,8 +50,10 @@ with tf.Session() as sess:
 
         if step % config.LOG_INTERVAL == 0:
             image_test, label_test = next_test_batch(images_test, labels_test, 1)
-            result_batch = sess.run(result, feed_dict={inputs: image_test, keep_prob: config.KEEP_PROB})
-            print("Step: {}, Loss: {}, Prediction: {}, Label: {}".format(step, loss_batch, result_batch, label_test))
+            # visualization(image_test[0])
+            steering_predict = sess.run(result, feed_dict={inputs: image_test, keep_prob: 1.0})[0]
+            print(
+                "Step: {}, Loss: {}, Prediction: {}, Label: {}".format(step, loss_batch, steering_predict, label_test))
             log_writer.add_summary(summary, global_step=step)
         if exit_signal or step % config.SAVE_INTERVAL == 0:
             saver.save(sess, os.path.join(config.MODEL_PATH, config.MODEL_NAME), global_step=step)

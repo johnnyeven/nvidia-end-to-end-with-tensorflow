@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 import os
 import config
@@ -104,10 +105,11 @@ def load_training_data():
     with open(os.path.join(config.DATASET_PATH, config.DATASET_META_FILE), 'r') as file:
         reader = csv.reader(file)
         next(reader)
-        for path, steering in reader:
+        for center_path, left_path, right_path, steering, _, _, _ in reader:
             steering_angle = float(steering.strip())
-            image_paths.append(path)
-            labels.append(steering_angle)
+            image_paths.extend([center_path.strip(), left_path.strip(), right_path.strip()])
+            labels.extend([steering_angle, steering_angle + config.ANGLE_DELTA_CORRECTION_LEFT,
+                           steering_angle + config.ANGLE_DELTA_CORRECTION_RIGHT])
     return image_paths, labels
 
 
@@ -163,3 +165,9 @@ def next_test_batch(images, labels, batch_size):
         next_test_batch.offset_train += 1
 
     return image_train_batch, label_train_batch
+
+
+def visualization(image):
+    plt.figure()
+    plt.imshow(image)
+    plt.show()

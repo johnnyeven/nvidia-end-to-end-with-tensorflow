@@ -6,6 +6,8 @@ LOG_PATH = BASE_PATH + "/trained/logs/"
 # Dataset config
 DATASET_PATH = "./data/"
 DATASET_META_FILE = "driving_data_meta.csv"
+ANGLE_DELTA_CORRECTION_LEFT = 0.2  # steering angle correction for the left camera image
+ANGLE_DELTA_CORRECTION_RIGHT = -0.2
 INPUT_IMAGE_CROP = [60, -25]  # the input image in order [start_x, end_x], to cut the sky in the image
 SPLIT_SIZE = 0.2
 
