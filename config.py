@@ -12,10 +12,10 @@ INPUT_IMAGE_CROP = [60, -25]  # the input image in order [start_x, end_x], to cu
 SPLIT_SIZE = 0.2
 
 # Training config
-MAX_STEPS = 30000
+MAX_STEPS = 50000
 KEEP_PROB = 0.5  # keep probability used by dropout layer
 REGULARIZER_WEIGHT = 0.0  # coefficient used by L2 regularizer
-BATCH_SIZE = 128  # training batch size
+BATCH_SIZE = 100  # training batch size
 
 LOG_INTERVAL = 5
 SAVE_INTERVAL = 500
