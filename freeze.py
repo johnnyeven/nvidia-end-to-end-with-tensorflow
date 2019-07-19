@@ -7,7 +7,7 @@ import config
 checkpoint = tf.train.get_checkpoint_state(config.MODEL_PATH)
 
 if checkpoint and checkpoint.model_checkpoint_path:
-    output_graph = os.path.join(config.MODEL_PATH, "frozen_model.pb")
+    output_graph = os.path.join(config.MODEL_PATH, config.FREEZE_MODEL_NAME + ".pb")
     output_node_name = "predict/result"
 
     saver = tf.train.import_meta_graph(checkpoint.model_checkpoint_path + ".meta", clear_devices=True)

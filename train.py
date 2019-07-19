@@ -38,7 +38,7 @@ with tf.Session() as sess:
         print("checkpoint detected", checkpoint.model_checkpoint_path)
     log_writer = tf.summary.FileWriter(config.LOG_PATH, sess.graph)
 
-    for _ in range(config.MAX_STEPS):
+    while True:
         image_train, label_train = next_batch(image_paths, image_labels)
 
         _, step, result_batch, loss_batch, summary = sess.run([train, training_step, result, loss, summary_op],

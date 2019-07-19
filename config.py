@@ -1,6 +1,7 @@
 BASE_PATH = "."
 MODEL_PATH = BASE_PATH + "/trained/models/"
 MODEL_NAME = "nvidia-end-to-end"
+FREEZE_MODEL_NAME = "nvidia-end-to-end-frozen"
 LOG_PATH = BASE_PATH + "/trained/logs/"
 
 # Dataset config
