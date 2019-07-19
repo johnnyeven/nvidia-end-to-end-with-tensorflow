@@ -78,7 +78,7 @@ def build_model(trainable=True):
                                 with_batch_normal=False, with_elu=False)
 
     with tf.variable_scope('predict'):
-        result = tf.reshape(fc10, [-1])
+        result = tf.reshape(fc10, [-1], name="result")
 
     return inputs, keep_prob, result
 
