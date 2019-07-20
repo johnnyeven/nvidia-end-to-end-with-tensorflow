@@ -58,14 +58,18 @@ with tf.Graph().as_default() as graph:
 
     image_paths, image_labels = utils.load_training_data()
     with tf.Session(graph=graph) as sess:
-        image_count = len(image_paths)
-        rand = random.randint(1, image_count - 1)
-        image_path = image_paths[rand]
+        # image_count = len(image_paths)
+        # rand = random.randint(1, image_count - 1)
+        # image_path = image_paths[rand]
+        #
+        # image = cv2.imread(os.path.join(config.DATASET_PATH, image_path), cv2.IMREAD_COLOR)
+        # processed_image = utils.process_image(image, config.INPUT_IMAGE_CROP)
 
-        image = cv2.imread(os.path.join(config.DATASET_PATH, image_path), cv2.IMREAD_COLOR)
-        processed_image = utils.process_image(image, config.INPUT_IMAGE_CROP)
-        visualization(image, processed_image)
+        image_batch, label_batch = utils.next_batch(image_paths, image_labels, 1, False)
 
-        reshaped_input = np.reshape(processed_image, (1, 66, 200, 3))
+        visualization(image_batch[0], image_batch[0])
 
-        print(sess.run(y, feed_dict={x: reshaped_input, keep_prob: .5}))
+        # reshaped_input = np.reshape(image_batch[0], (1, 66, 200, 3))
+
+        print(sess.run(y, feed_dict={x: image_batch, keep_prob: .5}))
+        # print(sess.run(y, feed_dict={x: reshaped_input, keep_prob: .5}))

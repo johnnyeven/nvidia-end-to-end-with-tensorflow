@@ -114,7 +114,7 @@ def load_training_data():
 
 
 @static_vars(offset_train=0, order_train=[])
-def next_batch(images, labels):
+def next_batch(images, labels, batch_size=None, augmented=True):
     image_train_count = len(images)
     if image_train_count != len(labels):
         raise ValueError("Unmatched count of image_train and label_train")
@@ -122,17 +122,20 @@ def next_batch(images, labels):
         raise ValueError("Count of image_train is less than batch size")
     if image_train_count != len(next_batch.order_train):
         next_batch.order_train = list(range(image_train_count))
+        random.shuffle(next_batch.order_train)
     if next_batch.offset_train + config.BATCH_SIZE > image_train_count:
         next_batch.offset_train = 0
         random.shuffle(next_batch.order_train)
 
     image_train_batch = []
     label_train_batch = []
-    for _ in range(config.BATCH_SIZE):
-        file_path = os.path.join(config.DATASET_PATH, images[next_batch.offset_train])
+    if batch_size is None:
+        batch_size = config.BATCH_SIZE
+    for _ in range(batch_size):
+        file_path = os.path.join(config.DATASET_PATH, images[next_batch.order_train[next_batch.offset_train]])
         image = cv2.imread(file_path, cv2.IMREAD_COLOR)
         steering = labels[next_batch.offset_train]
-        if np.random.rand() < 0.5:
+        if augmented and np.random.rand() < 0.5:
             image, steering = augment_image(image, steering)
         image_train_batch.append(process_image(image, config.INPUT_IMAGE_CROP))
         label_train_batch.append(steering)
