@@ -1,4 +1,5 @@
 import tensorflow as tf
+import numpy as np
 
 
 def conv_layer(name, inputs, in_channels, out_channels, ksize, stride, trainable=True, padding="SAME",
@@ -53,29 +54,23 @@ def build_model(trainable=True):
 
     inputs = tf.placeholder(tf.float32, [None, 66, 200, 3], 'inputs')
 
-    conv1, w1, b1 = conv_layer('conv1', inputs, 3, 24, [5, 5], [2, 2], padding='VALID', trainable=trainable,
-                               with_batch_normal=True)
-    conv2, w2, b2 = conv_layer('conv2', conv1, 24, 36, [5, 5], [2, 2], padding='VALID', trainable=trainable,
-                               with_batch_normal=True)
-    conv3, w3, b3 = conv_layer('conv3', conv2, 36, 48, [5, 5], [2, 2], padding='VALID', trainable=trainable,
-                               with_batch_normal=True)
-    conv4, w4, b4 = conv_layer('conv4', conv3, 48, 64, [3, 3], [1, 1], padding='VALID', trainable=trainable,
-                               with_batch_normal=True)
-    conv5, w5, b5 = conv_layer('conv5', conv4, 64, 64, [3, 3], [1, 1], padding='VALID', trainable=trainable,
-                               with_batch_normal=True)
+    conv1, w1, b1 = conv_layer('conv1', inputs, 3, 24, [5, 5], [2, 2], padding='VALID', trainable=trainable)
+    conv2, w2, b2 = conv_layer('conv2', conv1, 24, 36, [5, 5], [2, 2], padding='VALID', trainable=trainable)
+    conv3, w3, b3 = conv_layer('conv3', conv2, 36, 48, [5, 5], [2, 2], padding='VALID', trainable=trainable)
+    conv4, w4, b4 = conv_layer('conv4', conv3, 48, 64, [3, 3], [1, 1], padding='VALID', trainable=trainable)
+    conv5, w5, b5 = conv_layer('conv5', conv4, 64, 64, [3, 3], [1, 1], padding='VALID', trainable=trainable)
 
     drop = tf.nn.dropout(conv5, rate=1 - keep_prob)
+    drop_size = drop.get_shape().as_list()
+    drop_flat_size = np.prod(drop_size[1:])
+    drop_flat = tf.reshape(drop, [-1, drop_flat_size])
 
-    fc6, w6, b6 = conv_layer('fc1', drop, 64, 1164, [1, 18], [1, 1], padding='VALID', trainable=trainable,
-                             with_batch_normal=True)
-    fc7, w7, b7 = conv_layer('fc2', fc6, 1164, 100, [1, 1], [1, 1], padding='VALID', trainable=trainable,
-                             with_batch_normal=True)
-    fc8, w8, b8 = conv_layer('fc3', fc7, 100, 50, [1, 1], [1, 1], padding='VALID', trainable=trainable,
-                             with_batch_normal=True)
-    fc9, w9, b9 = conv_layer('fc4', fc8, 50, 10, [1, 1], [1, 1], padding='VALID', trainable=trainable,
-                             with_batch_normal=True)
-    fc10, w10, b10 = conv_layer('fc5', fc9, 10, 1, [1, 1], [1, 1], padding='VALID', trainable=trainable,
-                                with_batch_normal=False, with_elu=False)
+    # fc6, w6, b6 = fc_layer('fc1', drop_flat, 64, 1164, trainable=trainable)
+    # fc7, w7, b7 = fc_layer('fc2', fc6, 1164, 100, trainable=trainable)
+    fc7, w7, b7 = fc_layer('fc2', drop_flat, drop_flat_size, 100, trainable=trainable)
+    fc8, w8, b8 = fc_layer('fc3', fc7, 100, 50, trainable=trainable)
+    fc9, w9, b9 = fc_layer('fc4', fc8, 50, 10, trainable=trainable)
+    fc10, w10, b10 = fc_layer('fc5', fc9, 10, 1, trainable=trainable, with_batch_normal=False, with_elu=False)
 
     with tf.variable_scope('predict'):
         result = tf.reshape(fc10, [-1], name="result")
