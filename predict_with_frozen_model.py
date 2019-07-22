@@ -56,7 +56,7 @@ with tf.Graph().as_default() as graph:
     keep_prob = graph.get_tensor_by_name(keep_prob_node_name)
     y = graph.get_tensor_by_name(prediction_node_name)
 
-    image_paths, image_labels = utils.load_training_data()
+    dataset = utils.load_training_data(batch_size=1)
     with tf.Session(graph=graph) as sess:
         # image_count = len(image_paths)
         # rand = random.randint(1, image_count - 1)
@@ -65,11 +65,12 @@ with tf.Graph().as_default() as graph:
         # image = cv2.imread(os.path.join(config.DATASET_PATH, image_path), cv2.IMREAD_COLOR)
         # processed_image = utils.process_image(image, config.INPUT_IMAGE_CROP)
 
-        image_batch, label_batch = utils.next_batch(image_paths, image_labels, 1, False)
+        image_batch, label_batch = dataset.next_batch(augmented=False)
 
         visualization(image_batch[0], image_batch[0])
 
         # reshaped_input = np.reshape(image_batch[0], (1, 66, 200, 3))
 
+        sess.run(tf.global_variables_initializer())
         print(sess.run(y, feed_dict={x: image_batch, keep_prob: .5}))
         # print(sess.run(y, feed_dict={x: reshaped_input, keep_prob: .5}))

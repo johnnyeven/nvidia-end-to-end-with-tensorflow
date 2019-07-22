@@ -13,7 +13,7 @@ loss = models.build_loss(labels=labels, result=result, regularizer_weight=config
 training_step = tf.Variable(0, trainable=False, name="training_step")
 train = tf.train.AdamOptimizer(1e-5).minimize(loss, global_step=training_step)
 
-image_paths, image_labels = load_training_data()
+dataset = load_training_data(config.BATCH_SIZE)
 
 tf.summary.scalar("loss", loss)
 summary_op = tf.summary.merge_all()
@@ -39,7 +39,7 @@ with tf.Session() as sess:
     log_writer = tf.summary.FileWriter(config.LOG_PATH, sess.graph)
 
     while True:
-        image_train, label_train = next_batch(image_paths, image_labels)
+        image_train, label_train = dataset.next_batch()
 
         _, step, result_batch, loss_batch, summary = sess.run([train, training_step, result, loss, summary_op],
                                                               feed_dict={inputs: image_train, labels: label_train,

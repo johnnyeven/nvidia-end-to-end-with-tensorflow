@@ -1,6 +1,0 @@
-model_checkpoint_path: "nvidia-end-to-end-145000"
-all_model_checkpoint_paths: "nvidia-end-to-end-143000"
-all_model_checkpoint_paths: "nvidia-end-to-end-143500"
-all_model_checkpoint_paths: "nvidia-end-to-end-144000"
-all_model_checkpoint_paths: "nvidia-end-to-end-144500"
-all_model_checkpoint_paths: "nvidia-end-to-end-145000"

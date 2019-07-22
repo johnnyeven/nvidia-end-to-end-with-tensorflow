@@ -1,11 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
 import os
-import config
 import csv
 import random
 import cv2
+
+import config
+from dataset import Dataset
 
 IMAGE_HEIGHT, IMAGE_WIDTH, IMAGE_CHANNELS = 66, 200, 3
 
@@ -98,7 +99,7 @@ def random_brightness(image):
     return cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)
 
 
-def load_training_data():
+def load_training_data(batch_size):
     image_paths = []
     labels = []
 
@@ -110,7 +111,7 @@ def load_training_data():
             image_paths.extend([center_path.strip(), left_path.strip(), right_path.strip()])
             labels.extend([steering_angle, steering_angle + config.ANGLE_DELTA_CORRECTION_LEFT,
                            steering_angle + config.ANGLE_DELTA_CORRECTION_RIGHT])
-    return image_paths, labels
+    return Dataset(image_paths, labels, batch_size)
 
 
 @static_vars(offset_train=0, order_train=[])
@@ -140,32 +141,6 @@ def next_batch(images, labels, batch_size=None, augmented=True):
         image_train_batch.append(process_image(image, config.INPUT_IMAGE_CROP))
         label_train_batch.append(steering)
         next_batch.offset_train += 1
-
-    return image_train_batch, label_train_batch
-
-
-@static_vars(offset_train=0, order_train=[])
-def next_test_batch(images, labels, batch_size):
-    image_train_count = len(images)
-    if image_train_count != len(labels):
-        raise ValueError("Unmatched count of image_train and label_train")
-    if image_train_count < batch_size:
-        raise ValueError("Count of image_train is less than batch size")
-    if image_train_count != len(next_test_batch.order_train):
-        next_test_batch.order_train = list(range(image_train_count))
-    if next_test_batch.offset_train + batch_size > image_train_count:
-        next_test_batch.offset_train = 0
-        random.shuffle(next_test_batch.order_train)
-
-    image_train_batch = []
-    label_train_batch = []
-    for _ in range(batch_size):
-        file_path = os.path.join(config.DATASET_PATH, images[next_test_batch.offset_train])
-        image = cv2.imread(file_path, cv2.IMREAD_COLOR)
-        steering = labels[next_test_batch.offset_train]
-        image_train_batch.append(process_image(image, config.INPUT_IMAGE_CROP))
-        label_train_batch.append(steering)
-        next_test_batch.offset_train += 1
 
     return image_train_batch, label_train_batch
 
