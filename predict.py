@@ -23,7 +23,7 @@ if checkpoint and checkpoint.model_checkpoint_path:
         saver.restore(sess, checkpoint.model_checkpoint_path)
 
         for i in range(1):
-            test_image, test_label = dataset.next_batch(augmented=False)
+            test_image, test_label, test_path = dataset.next_batch(augmented=False)
             feed_dict = {inputs: test_image, keep_prob: .5}
 
             # for m in range(batch_size):
@@ -32,4 +32,4 @@ if checkpoint and checkpoint.model_checkpoint_path:
             pred = sess.run(result, feed_dict=feed_dict)
 
             # for m in range(batch_size):
-            print("prediction: {}, label: {}".format(pred[0], test_label[0]))
+            print("path: {}, prediction: {}, label: {}".format(test_path[0], pred[0], test_label[0]))

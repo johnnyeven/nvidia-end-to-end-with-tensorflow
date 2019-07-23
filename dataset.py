@@ -41,8 +41,10 @@ class Dataset:
 
         image_batch = []
         label_batch = []
+        path_batch = []
         for _ in range(self.batch_size):
             file_path = os.path.join(config.DATASET_PATH, self.images_path[self.orders[self.offset]])
+            path_batch.append(file_path)
             image = cv2.imread(file_path, cv2.IMREAD_COLOR)
             steering = self.labels[self.orders[self.offset]]
             if augmented and np.random.rand() < 0.5:
@@ -51,4 +53,4 @@ class Dataset:
             label_batch.append(steering)
             self.offset += 1
 
-        return image_batch, label_batch
+        return image_batch, label_batch, path_batch

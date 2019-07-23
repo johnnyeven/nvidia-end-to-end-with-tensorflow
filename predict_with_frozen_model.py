@@ -1,9 +1,6 @@
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import os
-import random
-import cv2
-import numpy as np
 
 import utils
 import config
@@ -15,12 +12,9 @@ prediction_node_name = node_name_prefix + "/predict/result:0"
 output_graph = os.path.join(config.MODEL_PATH, config.FREEZE_MODEL_NAME + ".pb")
 
 
-def visualization(image, processed_image):
+def visualization(image):
     plt.figure()
-    plt.subplot(211)
     plt.imshow(image)
-    plt.subplot(212)
-    plt.imshow(processed_image)
     plt.show()
 
 
@@ -58,19 +52,10 @@ with tf.Graph().as_default() as graph:
 
     dataset = utils.load_training_data(batch_size=1)
     with tf.Session(graph=graph) as sess:
-        # image_count = len(image_paths)
-        # rand = random.randint(1, image_count - 1)
-        # image_path = image_paths[rand]
-        #
-        # image = cv2.imread(os.path.join(config.DATASET_PATH, image_path), cv2.IMREAD_COLOR)
-        # processed_image = utils.process_image(image, config.INPUT_IMAGE_CROP)
+        image_batch, label_batch, path_batch = dataset.next_batch(augmented=False)
 
-        image_batch, label_batch = dataset.next_batch(augmented=False)
-
-        visualization(image_batch[0], image_batch[0])
-
-        # reshaped_input = np.reshape(image_batch[0], (1, 66, 200, 3))
+        visualization(image_batch[0])
 
         sess.run(tf.global_variables_initializer())
-        print(sess.run(y, feed_dict={x: image_batch, keep_prob: .5}))
-        # print(sess.run(y, feed_dict={x: reshaped_input, keep_prob: .5}))
+        pred = sess.run(y, feed_dict={x: image_batch, keep_prob: .5})
+        print("path: {}, prediction: {}, label: {}".format(path_batch[0], pred[0], label_batch[0]))

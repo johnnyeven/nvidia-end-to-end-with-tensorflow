@@ -39,7 +39,7 @@ with tf.Session() as sess:
     log_writer = tf.summary.FileWriter(config.LOG_PATH, sess.graph)
 
     while True:
-        image_train, label_train = dataset.next_batch()
+        image_train, label_train, _ = dataset.next_batch()
 
         _, step, result_batch, loss_batch, summary = sess.run([train, training_step, result, loss, summary_op],
                                                               feed_dict={inputs: image_train, labels: label_train,

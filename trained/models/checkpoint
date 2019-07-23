@@ -1,0 +1,2 @@
+model_checkpoint_path: "nvidia-end-to-end-117500"
+all_model_checkpoint_paths: "nvidia-end-to-end-117500"
